@@ -20,20 +20,10 @@ struct HabitTrackerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            TabView {
-                MainHabitListView()
-                    .preferredColorScheme(appSettings.colorScheme)
-                    .tabItem {
-                        Label("Habits", systemImage: "list.bullet")
-                    }
-                SettingsView()
-                    .environmentObject(appSettings)
-                    .preferredColorScheme(appSettings.colorScheme)
-                    .tabItem {
-                        Label("Settings", systemImage: "gear")
-                    }
-            }
-            .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            BubbleTabBarView()
+                .preferredColorScheme(appSettings.colorScheme)
+                .environmentObject(appSettings)
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
 }

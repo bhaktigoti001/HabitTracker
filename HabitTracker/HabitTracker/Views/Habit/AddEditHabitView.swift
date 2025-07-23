@@ -6,51 +6,46 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct AddEditHabitView: View {
-    @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) var dismiss
-    @AppStorage("isDailyReminderOn") var isDailyReminderOn: Bool = true
+    @StateObject private var viewModel: AddEditHabitViewModel
 
-    @State private var name = ""
-    @State private var description = ""
-    @State private var targetCount: Int16 = 1
-    @State private var reminderTime = Date()
-    
+    init(habit: Habit? = nil, context: NSManagedObjectContext) {
+        _viewModel = StateObject(wrappedValue: AddEditHabitViewModel(context: context, habit: habit))
+    }
+
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Habit Name", text: $name)
-                TextField("Description", text: $description)
-                Stepper("Target per day: \(targetCount)", value: $targetCount, in: 1...10)
-                DatePicker("Reminder Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
+                Section("Habit Details") {
+                    TextField("Name", text: $viewModel.name)
+                    TextField("Description", text: $viewModel.desc)
+                    Stepper("Target: \(viewModel.targetCount)", value: $viewModel.targetCount, in: 1...10)
+                }
+
+                Section("Reminder") {
+                    Toggle("Enable Reminder", isOn: $viewModel.enableReminder)
+                    if viewModel.enableReminder {
+                        DatePicker("Time", selection: $viewModel.reminderTime, displayedComponents: .hourAndMinute)
+                    }
+                }
             }
-            .navigationTitle("Add Habit")
+            .navigationTitle(viewModel.habit == nil ? "Add Habit" : "Edit Habit")
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        addHabit()
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        viewModel.save()
+                        dismiss()
+                    }
                 }
             }
         }
     }
-    
-    private func addHabit() {
-        let newHabit = Habit(context: viewContext)
-        newHabit.id = UUID()
-        newHabit.name = name
-        newHabit.desc = description
-        newHabit.targetCount = targetCount
-        newHabit.currentCount = 0
-        newHabit.reminderTime = reminderTime
-        
-        try? viewContext.save()
-        NotificationManager.shared.scheduleNotification(for: name, at: reminderTime, isDailyReminderOn: isDailyReminderOn)
-    }
 }
-

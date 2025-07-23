@@ -10,7 +10,7 @@ import CoreData
 
 struct MainHabitListView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    
+
     @FetchRequest(
         entity: Habit.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Habit.name, ascending: true)],
@@ -18,7 +18,12 @@ struct MainHabitListView: View {
     )
     var habits: FetchedResults<Habit>
 
-    @State private var showAddHabit = false
+    @StateObject private var viewModel: MainHabitListViewModel
+
+    init() {
+        // Inject context via init to avoid early access to Environment
+        _viewModel = StateObject(wrappedValue: MainHabitListViewModel(context: PersistenceController.shared.container.viewContext))
+    }
 
     var body: some View {
         NavigationStack {
@@ -26,36 +31,36 @@ struct MainHabitListView: View {
                 LazyVStack {
                     ForEach(habits, id: \.id) { habit in
                         NavigationLink(destination: HabitDetailView(habit: habit)) {
-                            HabitRowView(habit: habit)
+                            HabitRowView(
+                                habit: habit,
+                                onEdit: {
+                                    viewModel.startEditFlow(for: habit)
+                                },
+                                onDelete: {
+                                    viewModel.deleteHabit(habit)
+                                }
+                            )
+                            .padding(.vertical, 4)
                         }
+                        .toolbar(.hidden, for: .tabBar)
                     }
                 }
+                .padding(.horizontal)
             }
-            .padding()
+            .safeAreaPadding(.bottom, 68)
             .navigationTitle("My Habits")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showAddHabit = true }) {
+                    Button {
+                        viewModel.startAddFlow()
+                    } label: {
                         Label("Add Habit", systemImage: "plus")
                     }
                 }
             }
-            .sheet(isPresented: $showAddHabit) {
-                AddEditHabitView()
-            }
-        }
-    }
-
-    private func deleteHabits(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { habits[$0] }.forEach(viewContext.delete)
-            do {
-                try viewContext.save()
-            } catch {
-                print("Error deleting habit: \(error.localizedDescription)")
+            .sheet(isPresented: $viewModel.showAddHabit) {
+                AddEditHabitView(habit: viewModel.selectedHabit, context: viewContext)
             }
         }
     }
 }
-
-

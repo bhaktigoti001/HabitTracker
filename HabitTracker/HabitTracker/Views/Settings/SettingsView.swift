@@ -7,19 +7,6 @@
 
 import SwiftUI
 
-class AppSettings: ObservableObject {
-    @AppStorage("isDarkModeOn") var isDarkModeOn: Bool = false {
-        didSet {
-            objectWillChange.send()
-        }
-    }
-
-    var colorScheme: ColorScheme? {
-        isDarkModeOn ? .dark : .light
-    }
-}
-
-
 struct SettingsView: View {
     @AppStorage("isDailyReminderOn") var isDailyReminderOn: Bool = true
     @EnvironmentObject var appSettings: AppSettings
