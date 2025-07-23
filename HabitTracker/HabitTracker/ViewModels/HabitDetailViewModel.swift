@@ -33,6 +33,10 @@ class HabitDetailViewModel: ObservableObject {
         save()
     }
 
+    func progressWidth(in totalWidth: CGFloat) -> CGFloat {
+        return totalWidth * progressRatio
+    }
+    
     private func save() {
         do {
             try viewContext.save()

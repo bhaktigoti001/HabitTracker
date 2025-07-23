@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HabitRowView: View {
     @State private var showConfirmDelete = false
+    @Binding var isDetailed: Bool
     
     var habit: Habit
     var onEdit: (() -> Void)? = nil
@@ -17,7 +18,7 @@ struct HabitRowView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(habit.name ?? "Untitled")
+                Text(habit.name ?? "")
                     .font(.headline)
                 Text(habit.desc ?? "")
                     .font(.subheadline)
@@ -47,14 +48,20 @@ struct HabitRowView: View {
                 }
             }
         }
+        .background(
+            NavigationLink(destination: HabitDetailView(habit: habit, isDetailed: $isDetailed)) {
+                EmptyView()
+            }
+            .opacity(0)
+        )
         .alert("Are you sure you want to delete this habit?", isPresented: $showConfirmDelete) {
             Button("Delete", role: .destructive) {
                 onDelete?()
             }
             Button("Cancel", role: .cancel) { }
         }
-        .padding()
-        .background(Color(.systemGray6))
+//        .padding()
+//        .background(Color(.systemGray6))
         .cornerRadius(8)
     }
 }

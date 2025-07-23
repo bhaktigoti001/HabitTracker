@@ -12,7 +12,7 @@ import SwiftUI
 class MainHabitListViewModel: ObservableObject {
     @Published var selectedHabit: Habit? = nil
     @Published var showAddHabit: Bool = false
-
+    
     private var viewContext: NSManagedObjectContext
 
     init(context: NSManagedObjectContext) {

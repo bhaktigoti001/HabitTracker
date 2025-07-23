@@ -19,19 +19,22 @@ struct MainHabitListView: View {
     var habits: FetchedResults<Habit>
 
     @StateObject private var viewModel: MainHabitListViewModel
+    @Binding var isDetailed: Bool
 
-    init() {
+    init(isDetailed: Binding<Bool>) {
         // Inject context via init to avoid early access to Environment
+        _isDetailed = isDetailed
         _viewModel = StateObject(wrappedValue: MainHabitListViewModel(context: PersistenceController.shared.container.viewContext))
     }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack {
+            List { // ScrollView {
+//                LazyVStack {
                     ForEach(habits, id: \.id) { habit in
-                        NavigationLink(destination: HabitDetailView(habit: habit)) {
+//                        NavigationLink(destination: HabitDetailView(habit: habit)) {
                             HabitRowView(
+                                isDetailed: $isDetailed,
                                 habit: habit,
                                 onEdit: {
                                     viewModel.startEditFlow(for: habit)
@@ -42,12 +45,11 @@ struct MainHabitListView: View {
                             )
                             .padding(.vertical, 4)
                         }
-                        .toolbar(.hidden, for: .tabBar)
-                    }
-                }
-                .padding(.horizontal)
+//                    }
+//                }
+//                .padding(.horizontal)
             }
-            .safeAreaPadding(.bottom, 68)
+            .safeAreaPadding(.bottom, 48)
             .navigationTitle("My Habits")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

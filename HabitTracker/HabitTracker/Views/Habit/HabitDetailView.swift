@@ -12,9 +12,11 @@ struct HabitDetailView: View {
     @State private var showEditSheet = false
     @StateObject private var viewModel: HabitDetailViewModel
     @ObservedObject var habit: Habit
+    @Binding var isDetailed: Bool
 
-    init(habit: Habit) {
+    init(habit: Habit, isDetailed: Binding<Bool>) {
         self.habit = habit
+        _isDetailed = isDetailed
         _viewModel = StateObject(wrappedValue: HabitDetailViewModel(habit: habit, viewContext: PersistenceController.shared.container.viewContext))
     }
 
@@ -28,6 +30,12 @@ struct HabitDetailView: View {
             }
             .padding()
         }
+        .onAppear {
+            isDetailed = true
+        }
+        .onDisappear(perform: {
+            isDetailed = false
+        })
         .toolbar {
             Button {
                 showEditSheet = true
@@ -35,7 +43,6 @@ struct HabitDetailView: View {
                 Label("Edit", systemImage: "pencil")
             }
         }
-        .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showEditSheet) {
             AddEditHabitView(habit: viewModel.habit, context: viewContext)
         }
@@ -74,7 +81,7 @@ struct HabitDetailView: View {
 
                     Capsule()
                         .fill(Color.green)
-                        .frame(width: progressWidth(in: geometry.size.width), height: 12)
+                        .frame(width: viewModel.progressWidth(in: geometry.size.width), height: 12)
                         .animation(.easeInOut(duration: 0.4), value: viewModel.habit.currentCount)
                 }
             }
@@ -115,10 +122,6 @@ struct HabitDetailView: View {
             .padding(.top, 8)
         }
         .padding(.vertical)
-    }
-
-    private func progressWidth(in totalWidth: CGFloat) -> CGFloat {
-        return totalWidth * viewModel.progressRatio
     }
 
     @ViewBuilder

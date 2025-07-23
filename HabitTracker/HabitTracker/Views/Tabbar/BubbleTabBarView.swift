@@ -14,30 +14,25 @@ enum Tab {
 
 struct BubbleTabBarView: View {
     @State private var selectedTab: Tab = .habits
+    @State private var isDetailed = false
     @EnvironmentObject private var appSettings: AppSettings
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Content based on selected tab
             Group {
                 switch selectedTab {
                 case .habits:
-                    NavigationStack {
-                        MainHabitListView()
-                            .preferredColorScheme(appSettings.colorScheme)
-                    }
+                    MainHabitListView(isDetailed: $isDetailed)
+                        .preferredColorScheme(appSettings.colorScheme)
                 case .settings:
-                    NavigationStack {
-                        SettingsView()
-                            .environmentObject(appSettings)
-                            .preferredColorScheme(appSettings.colorScheme)
-                    }
+                    SettingsView()
+                        .environmentObject(appSettings)
+                        .preferredColorScheme(appSettings.colorScheme)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(.systemGroupedBackground))
 
-            // Custom Bubble Tab Bar
             HStack(spacing: 40) {
                 tabButton(.habits, icon: "list.bullet.rectangle", title: "Habits")
                 tabButton(.settings, icon: "gearshape.fill", title: "Settings")
@@ -49,6 +44,7 @@ struct BubbleTabBarView: View {
                     .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 3)
             )
             .padding(.bottom, 24)
+            .opacity(isDetailed ? 0 : 1)
         }
         .edgesIgnoringSafeArea(.bottom)
     }

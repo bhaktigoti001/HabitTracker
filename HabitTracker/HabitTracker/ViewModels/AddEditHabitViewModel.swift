@@ -16,9 +16,10 @@ class AddEditHabitViewModel: ObservableObject {
     @Published var enableReminder: Bool = false
     @Published var reminderTime: Date = Date()
 
-    private var context: NSManagedObjectContext
     @Published var habit: Habit?
     @AppStorage("isDailyReminderOn") var isDailyReminderOn: Bool = true
+    
+    private var context: NSManagedObjectContext
 
     init(context: NSManagedObjectContext, habit: Habit? = nil) {
         self.context = context
@@ -49,7 +50,9 @@ class AddEditHabitViewModel: ObservableObject {
 
         do {
             try context.save()
-            NotificationManager.shared.scheduleNotification(for: name, at: reminderTime, isDailyReminderOn: isDailyReminderOn)
+            if isNew {
+                NotificationManager.shared.scheduleNotification(for: name, at: reminderTime, isDailyReminderOn: isDailyReminderOn)
+            }
         } catch {
             print("Failed to save habit: \(error.localizedDescription)")
         }
