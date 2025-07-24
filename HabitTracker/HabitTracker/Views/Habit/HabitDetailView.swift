@@ -21,14 +21,24 @@ struct HabitDetailView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                headerSection
-                progressSection
-                reminderSection
-                analyticsSection
+        List {
+            Section {
+                VStack(alignment: .leading, spacing: 24) {
+                    headerSection
+                    progressSection
+                }
             }
-            .padding()
+            .padding(.vertical, 4)
+            
+            Section {
+                reminderSection
+                    .padding(.vertical, 4)
+            }
+            
+            Section("Analytics") {
+                analyticsSection
+                    .padding(.vertical, 4)
+            }
         }
         .onAppear {
             isDetailed = true
@@ -70,58 +80,38 @@ struct HabitDetailView: View {
     @ViewBuilder
     private var progressSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Today’s Progress")
-                .font(.headline)
+            HStack(alignment: .center, spacing: 32) {
+                CircularProgressView(progress: viewModel.progressRatio)
+                    .frame(width: 100, height: 100)
+                    .padding(.vertical, 4)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Today's Progress")
+                        .font(.headline)
 
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(height: 12)
-
-                    Capsule()
-                        .fill(Color.green)
-                        .frame(width: viewModel.progressWidth(in: geometry.size.width), height: 12)
-                        .animation(.easeInOut(duration: 0.4), value: viewModel.habit.currentCount)
+                    Text("Completed \(viewModel.habit.currentCount)/\(viewModel.habit.targetCount)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
                 }
-            }
-            .frame(height: 12)
 
-            HStack {
-                Text("Completed \(viewModel.habit.currentCount)/\(viewModel.habit.targetCount)")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
                 Spacer()
-                Text(String(format: "%.0f%%", viewModel.progressRatio * 100))
-                    .font(.subheadline)
-                    .foregroundColor(.blue)
             }
 
-            HStack(spacing: 16) {
-                if viewModel.habit.currentCount < viewModel.habit.targetCount {
-                    Button(action: {
+            if viewModel.habit.currentCount < viewModel.habit.targetCount {
+                Button(action: {
+                    withAnimation {
                         viewModel.incrementProgress()
-                    }) {
-                        Label("Mark as Done", systemImage: "plus.circle.fill")
-                            .font(.headline)
-                            .foregroundColor(.blue)
                     }
+                }) {
+                    Label("Mark as Done", systemImage: "plus.circle.fill")
+                        .font(.headline)
+                        .foregroundColor(.blue)
                 }
-
-                Spacer()
-
-                if viewModel.habit.currentCount > 0 {
-                    Button(role: .destructive, action: {
-                        viewModel.resetProgress()
-                    }) {
-                        Label("Reset", systemImage: "arrow.counterclockwise")
-                            .font(.subheadline)
-                    }
-                }
+                .padding(.top, 4)
+                .transition(.opacity)
             }
-            .padding(.top, 8)
         }
-        .padding(.vertical)
+        .animation(.easeInOut, value: viewModel.habit.currentCount)
     }
 
     @ViewBuilder
@@ -133,18 +123,27 @@ struct HabitDetailView: View {
                 Text(viewModel.formattedReminderTime(from: time))
                     .font(.subheadline)
                     .foregroundColor(.gray)
+                    .padding(.top, 4)
             }
         }
     }
 
     @ViewBuilder
     private var analyticsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("📊 Analytics (Mock)")
-                .font(.headline)
-            Text("🔥 Current streak: 3 days")
-            Text("📆 Last completed: Yesterday")
-            Text("✅ Weekly completion rate: 71%")
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 0) {
+                Text("🔥 Current streak: ").bold()
+                Text("\(viewModel.currentStreak()) days")
+            }
+            HStack(spacing: 0) {
+                Text("📆 Last completed: ").bold()
+                Text(viewModel.lastCompletedDate())
+            }
+
+            HStack(spacing: 0) {
+                Text("✅ Weekly completion rate: ").bold()
+                Text(viewModel.weeklyCompletionRate())
+            }
         }
     }
 }

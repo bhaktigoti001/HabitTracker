@@ -11,10 +11,12 @@ import CoreData
 class HabitDetailViewModel: ObservableObject {
     @Published var habit: Habit
     private var viewContext: NSManagedObjectContext
+    private var analytics: HabitAnalytics
 
     init(habit: Habit, viewContext: NSManagedObjectContext) {
         self.habit = habit
         self.viewContext = viewContext
+        self.analytics = HabitAnalytics(habit: habit)
     }
 
     var progressRatio: CGFloat {
@@ -25,6 +27,21 @@ class HabitDetailViewModel: ObservableObject {
     func incrementProgress() {
         guard habit.currentCount < habit.targetCount else { return }
         habit.currentCount += 1
+
+        if habit.currentCount == habit.targetCount {
+            logCompletion(for: habit)
+        }
+
+        save()
+    }
+
+    private func logCompletion(for habit: Habit) {
+        let log = HabitLog(context: viewContext)
+        log.id = UUID()
+        log.date = Date()
+        log.value = 1
+        log.habit = habit
+
         save()
     }
 
@@ -36,7 +53,7 @@ class HabitDetailViewModel: ObservableObject {
     func progressWidth(in totalWidth: CGFloat) -> CGFloat {
         return totalWidth * progressRatio
     }
-    
+
     private func save() {
         do {
             try viewContext.save()
@@ -49,5 +66,17 @@ class HabitDetailViewModel: ObservableObject {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+
+    func currentStreak() -> Int {
+        analytics.currentStreak()
+    }
+
+    func lastCompletedDate() -> String {
+        analytics.lastCompletedDate()
+    }
+
+    func weeklyCompletionRate() -> String {
+        analytics.weeklyCompletionRate()
     }
 }
