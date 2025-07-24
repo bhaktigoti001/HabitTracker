@@ -24,6 +24,27 @@ class HabitDetailViewModel: ObservableObject {
         return CGFloat(habit.currentCount) / CGFloat(habit.targetCount)
     }
 
+    var sortedLogs: [HabitLog] {
+        guard let logs = habit.logs as? Set<HabitLog> else { return [] }
+        return logs.sorted { ($0.date ?? .distantPast) > ($1.date ?? .distantPast) }
+    }
+    
+    var last7DaysLogSummary: [DailyLog] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let past7Days = (0..<7).compactMap {
+            calendar.date(byAdding: .day, value: -$0, to: today)
+        }
+
+        return past7Days.reversed().map { day in
+            let count = sortedLogs.filter {
+                guard let logDate = $0.date else { return false }
+                return calendar.isDate(logDate, inSameDayAs: day)
+            }.count
+            return DailyLog(date: day, count: count)
+        }
+    }
+    
     func incrementProgress() {
         guard habit.currentCount < habit.targetCount else { return }
         habit.currentCount += 1
@@ -62,12 +83,6 @@ class HabitDetailViewModel: ObservableObject {
         }
     }
 
-    func formattedReminderTime(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
-
     func currentStreak() -> Int {
         analytics.currentStreak()
     }
@@ -78,5 +93,22 @@ class HabitDetailViewModel: ObservableObject {
 
     func weeklyCompletionRate() -> String {
         analytics.weeklyCompletionRate()
+    }
+    
+    func checkIfNewDayAndReset() {
+        let calendar = Calendar.current
+        let now = Date()
+
+        guard let lastDate = habit.lastUpdated else {
+            habit.lastUpdated = now
+            save()
+            return
+        }
+
+        if !calendar.isDate(lastDate, inSameDayAs: now) {
+            habit.currentCount = 0
+            habit.lastUpdated = now
+            save()
+        }
     }
 }

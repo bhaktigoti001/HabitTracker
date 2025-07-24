@@ -21,27 +21,39 @@ struct HabitDetailView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                VStack(alignment: .leading, spacing: 24) {
-                    headerSection
-                    progressSection
+        NavigationStack {
+            List {
+                Section {
+                    VStack(alignment: .leading, spacing: 24) {
+                        headerSection
+                        progressSection
+                    }
                 }
-            }
-            .padding(.vertical, 4)
-            
-            Section {
-                reminderSection
+                .padding(.vertical, 4)
+                
+                Section {
+                    reminderSection
+                        .padding(.vertical, 4)
+                }
+                
+                Section("Analytics") {
+                    analyticsSection
+                        .padding(.vertical, 4)
+                }
+                
+                Section("History") {
+                    NavigationLink(destination: HabitHistoryView(viewModel: viewModel)) {
+                        Label("View History", systemImage: "clock.arrow.circlepath")
+                            .font(.subheadline)
+                            .foregroundColor(.blue)
+                    }
                     .padding(.vertical, 4)
-            }
-            
-            Section("Analytics") {
-                analyticsSection
-                    .padding(.vertical, 4)
+                }
             }
         }
         .onAppear {
             isDetailed = true
+            viewModel.checkIfNewDayAndReset()
         }
         .onDisappear(perform: {
             isDetailed = false
@@ -120,7 +132,7 @@ struct HabitDetailView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("⏰ Reminder")
                     .font(.headline)
-                Text(viewModel.formattedReminderTime(from: time))
+                Text(Date().formattedReminderTime(from: time))
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .padding(.top, 4)

@@ -18,23 +18,20 @@ struct HabitAnalytics {
 
     func currentStreak() -> Int {
         guard let logs = habit.logs as? Set<HabitLog> else { return 0 }
-
-        let dates = logs.compactMap { $0.date }.map { Calendar.current.startOfDay(for: $0) }
-        let uniqueDates = Set(dates)
+        let calendar = Calendar.current
+        let uniqueLogDates = logs
+            .compactMap { $0.date }
+            .map { calendar.startOfDay(for: $0) }
 
         var streak = 0
-        var dayOffset = 0
+        var currentDay = calendar.startOfDay(for: Date())
 
-        while true {
-            guard let date = Calendar.current.date(byAdding: .day, value: -dayOffset, to: Date()) else { break }
-            let day = Calendar.current.startOfDay(for: date)
-
-            if uniqueDates.contains(day) {
-                streak += 1
-                dayOffset += 1
-            } else {
+        while uniqueLogDates.contains(currentDay) {
+            streak += 1
+            guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDay) else {
                 break
             }
+            currentDay = previousDay
         }
 
         return streak
