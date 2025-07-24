@@ -13,10 +13,12 @@ struct HabitDetailView: View {
     @StateObject private var viewModel: HabitDetailViewModel
     @ObservedObject var habit: Habit
     @Binding var isDetailed: Bool
+    @Binding var isHistory: Bool
 
-    init(habit: Habit, isDetailed: Binding<Bool>) {
+    init(habit: Habit, isDetailed: Binding<Bool>, isHistory: Binding<Bool>) {
         self.habit = habit
         _isDetailed = isDetailed
+        _isHistory = isHistory
         _viewModel = StateObject(wrappedValue: HabitDetailViewModel(habit: habit, viewContext: PersistenceController.shared.container.viewContext))
     }
 
@@ -42,7 +44,7 @@ struct HabitDetailView: View {
                 }
                 
                 Section("History") {
-                    NavigationLink(destination: HabitHistoryView(viewModel: viewModel)) {
+                    NavigationLink(destination: HabitHistoryView(viewModel: viewModel, isHistory: $isHistory)) {
                         Label("View History", systemImage: "clock.arrow.circlepath")
                             .font(.subheadline)
                             .foregroundColor(.blue)

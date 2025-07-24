@@ -15,6 +15,7 @@ enum Tab {
 struct BubbleTabBarView: View {
     @State private var selectedTab: Tab = .habits
     @State private var isDetailed = false
+    @State private var isHistory = false
     @EnvironmentObject private var appSettings: AppSettings
     
     var body: some View {
@@ -22,7 +23,7 @@ struct BubbleTabBarView: View {
             Group {
                 switch selectedTab {
                 case .habits:
-                    MainHabitListView(isDetailed: $isDetailed)
+                    MainHabitListView(isDetailed: $isDetailed, isHistory: $isHistory)
                         .preferredColorScheme(appSettings.colorScheme)
                 case .settings:
                     SettingsView()
@@ -44,7 +45,7 @@ struct BubbleTabBarView: View {
                     .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 3)
             )
             .padding(.bottom, 24)
-            .opacity(isDetailed ? 0 : 1)
+            .opacity((isDetailed || isHistory) ? 0 : 1)
         }
         .edgesIgnoringSafeArea(.bottom)
     }

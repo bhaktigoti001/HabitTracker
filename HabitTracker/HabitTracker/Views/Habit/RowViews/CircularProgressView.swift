@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct CircularProgressView: View {
-    var progress: CGFloat // between 0 and 1
+    var progress: CGFloat
     var lineWidth: CGFloat = 10
 
     var body: some View {

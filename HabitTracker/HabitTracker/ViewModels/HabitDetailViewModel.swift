@@ -8,6 +8,14 @@
 import SwiftUI
 import CoreData
 
+enum HabitLogFilter: String, CaseIterable, Identifiable {
+    case all = "All"
+    case week = "This Week"
+    case month = "This Month"
+
+    var id: String { rawValue }
+}
+
 class HabitDetailViewModel: ObservableObject {
     @Published var habit: Habit
     private var viewContext: NSManagedObjectContext
@@ -111,4 +119,28 @@ class HabitDetailViewModel: ObservableObject {
             save()
         }
     }
+    
+    func filteredLogs(for filter: HabitLogFilter) -> [HabitLog] {
+        let calendar = Calendar.current
+        let now = Date()
+
+        switch filter {
+        case .all:
+            return sortedLogs
+
+        case .week:
+            guard let startOfWeek = now.startOfWeek, let endOfWeek = now.endOfWeek else { return [] }
+            return sortedLogs.filter {
+                guard let date = $0.date else { return false }
+                return date >= startOfWeek && date <= endOfWeek
+            }
+
+        case .month:
+            return sortedLogs.filter {
+                guard let date = $0.date else { return false }
+                return calendar.isDate(date, equalTo: now, toGranularity: .month)
+            }
+        }
+    }
+
 }

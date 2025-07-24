@@ -20,10 +20,11 @@ struct MainHabitListView: View {
 
     @StateObject private var viewModel: MainHabitListViewModel
     @Binding var isDetailed: Bool
+    @Binding var isHistory: Bool
 
-    init(isDetailed: Binding<Bool>) {
-        // Inject context via init to avoid early access to Environment
+    init(isDetailed: Binding<Bool>, isHistory: Binding<Bool>) {
         _isDetailed = isDetailed
+        _isHistory = isHistory
         _viewModel = StateObject(wrappedValue: MainHabitListViewModel(context: PersistenceController.shared.container.viewContext))
     }
 
@@ -35,6 +36,7 @@ struct MainHabitListView: View {
 //                        NavigationLink(destination: HabitDetailView(habit: habit)) {
                             HabitRowView(
                                 isDetailed: $isDetailed,
+                                isHistory: $isHistory,
                                 habit: habit,
                                 onEdit: {
                                     viewModel.startEditFlow(for: habit)

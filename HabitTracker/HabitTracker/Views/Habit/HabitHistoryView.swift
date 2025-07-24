@@ -10,71 +10,69 @@ import Charts
 
 struct HabitHistoryView: View {
     @ObservedObject var viewModel: HabitDetailViewModel
-    @State private var selectedFilter: Filter = .all
+    @Binding var isHistory: Bool
     
-    enum Filter: String, CaseIterable {
-        case all = "All"
-        case week = "This Week"
-        case month = "This Month"
-    }
-    
+    @State private var selectedFilter: HabitLogFilter = .all
+
     var body: some View {
         VStack {
-            Picker("Filter", selection: $selectedFilter) {
-                ForEach(Filter.allCases, id: \.self) { filter in
-                    Text(filter.rawValue).tag(filter)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding()
-            
-            if filteredLogs.isEmpty {
-                VStack(spacing: 12) {
-                    Image(systemName: "clock.badge.exclamationmark")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 80, height: 80)
-                        .foregroundColor(.gray.opacity(0.5))
-                    
-                    Text("No history available")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            filterPicker
+                .padding()
+
+            if viewModel.filteredLogs(for: selectedFilter).isEmpty {
+                emptyPlaceholder
             } else {
-                List(filteredLogs, id: \.self) { log in
-                    VStack(alignment: .leading) {
-                        Text("Completed")
-                            .font(.subheadline)
-                        Text(Date().formattedLogDate(log.date))
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.vertical, 4)
-                }
+                logList
             }
         }
+        .onAppear(perform: {
+            isHistory = true
+        })
+        .onDisappear(perform: {
+            isHistory = false
+        })
         .navigationTitle("History")
     }
     
-    private var filteredLogs: [HabitLog] {
-        let logs = viewModel.sortedLogs
-        let calendar = Calendar.current
-        let now = Date()
-        
-        switch selectedFilter {
-        case .all:
-            return logs
-        case .week:
-            return logs.filter {
-                guard let logDate = $0.date, let startOfWeek = Date().startOfWeek, let endOfWeek = Date().endOfWeek else { return false }
-                return logDate >= startOfWeek && logDate <= endOfWeek
+    @ViewBuilder
+    private var filterPicker: some View {
+        Picker("Filter", selection: $selectedFilter) {
+            ForEach(HabitLogFilter.allCases) { filter in
+                Text(filter.rawValue).tag(filter)
             }
-        case .month:
-            return logs.filter {
-                guard let date = $0.date else { return false }
-                return calendar.isDate(date, equalTo: now, toGranularity: .month)
+        }
+        .pickerStyle(.segmented)
+    }
+
+    @ViewBuilder
+    private var emptyPlaceholder: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "clock.badge.exclamationmark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 80, height: 80)
+                .foregroundColor(.gray.opacity(0.5))
+
+            Text("No history available")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    @ViewBuilder
+    private var logList: some View {
+        List(viewModel.filteredLogs(for: selectedFilter), id: \.self) { log in
+            VStack(alignment: .leading, spacing: 4) {
+                Text("✅ Completed")
+                    .font(.subheadline)
+                if let date = log.date {
+                    Text(Date().formattedLogDate(date))
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
             }
+            .padding(.vertical, 4)
         }
     }
 }

@@ -10,6 +10,7 @@ import SwiftUI
 struct HabitRowView: View {
     @State private var showConfirmDelete = false
     @Binding var isDetailed: Bool
+    @Binding var isHistory: Bool
     
     var habit: Habit
     var onEdit: (() -> Void)? = nil
@@ -49,7 +50,7 @@ struct HabitRowView: View {
             }
         }
         .background(
-            NavigationLink(destination: HabitDetailView(habit: habit, isDetailed: $isDetailed)) {
+            NavigationLink(destination: HabitDetailView(habit: habit, isDetailed: $isDetailed, isHistory: $isHistory)) {
                 EmptyView()
             }
             .opacity(0)
