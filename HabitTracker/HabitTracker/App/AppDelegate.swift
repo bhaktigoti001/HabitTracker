@@ -10,6 +10,8 @@ import UserNotifications
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
+    var notificationManager: NotificationNavigationManager?
+    
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
@@ -34,5 +36,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         completionHandler([.banner, .sound])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        print(response.notification.request.identifier.replacingOccurrences(of: "streakRisk_", with: ""))
+        let navTarget = NotificationNavigationTarget.habit(id: response.notification.request.identifier.replacingOccurrences(of: "streakRisk_", with: ""))
+        self.notificationManager?.navigate(to: navTarget)
+        NotificationCenter.default.post(name: .didReceiveNotificationNavigationTarget, object: navTarget)
     }
 }

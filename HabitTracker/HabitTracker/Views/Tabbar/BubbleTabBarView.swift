@@ -17,6 +17,7 @@ struct BubbleTabBarView: View {
     @State private var isDetailed = false
     @State private var isHistory = false
     @EnvironmentObject private var appSettings: AppSettings
+    @EnvironmentObject var notificationManager: NotificationNavigationManager
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -24,6 +25,7 @@ struct BubbleTabBarView: View {
                 switch selectedTab {
                 case .habits:
                     MainHabitListView(isDetailed: $isDetailed, isHistory: $isHistory)
+                        .environmentObject(notificationManager)
                         .preferredColorScheme(appSettings.colorScheme)
                 case .settings:
                     SettingsView()

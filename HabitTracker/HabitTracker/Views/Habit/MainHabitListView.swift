@@ -21,7 +21,9 @@ struct MainHabitListView: View {
     @StateObject private var viewModel: MainHabitListViewModel
     @Binding var isDetailed: Bool
     @Binding var isHistory: Bool
-
+    @State private var navigationTarget: NotificationNavigationTarget?
+    @EnvironmentObject var notificationManager: NotificationNavigationManager
+    
     init(isDetailed: Binding<Bool>, isHistory: Binding<Bool>) {
         _isDetailed = isDetailed
         _isHistory = isHistory
@@ -59,6 +61,25 @@ struct MainHabitListView: View {
             }
             .sheet(isPresented: $viewModel.showAddHabit) {
                 AddEditHabitView(habit: viewModel.selectedHabit, context: viewContext)
+            }
+            .onAppear {
+                for habit in habits {
+                    NotificationManager.shared.scheduleStreakRiskReminder(for: habit)
+                }
+            }
+            .onChange(of: notificationManager.navigationTarget) { newTarget in
+                if let target = newTarget {
+                    navigationTarget = newTarget
+                    notificationManager.clear()
+                }
+            }
+            .navigationDestination(item: $navigationTarget) { target in
+                switch target {
+                case .habit(let id):
+                    if let habit = habits.first(where: { $0.id?.uuidString ?? "" == id }) {
+                        HabitDetailView(habit: habit, isDetailed: $isDetailed, isHistory: $isHistory)
+                    }
+                }
             }
         }
     }

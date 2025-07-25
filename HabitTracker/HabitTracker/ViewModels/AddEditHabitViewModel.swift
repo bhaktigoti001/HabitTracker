@@ -52,9 +52,8 @@ class AddEditHabitViewModel: ObservableObject {
 
         do {
             try context.save()
-            if isNew {
-                NotificationManager.shared.scheduleNotification(for: name, at: reminderTime, isDailyReminderOn: isDailyReminderOn)
-            }
+            NotificationManager.shared.scheduleNotification(for: name, at: reminderTime, isDailyReminderOn: isDailyReminderOn)
+            NotificationManager.shared.scheduleStreakRiskReminder(for: habitToSave)
         } catch {
             print("Failed to save habit: \(error.localizedDescription)")
         }

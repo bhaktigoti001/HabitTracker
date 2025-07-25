@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Charts
 
 struct HabitHistoryView: View {
     @ObservedObject var viewModel: HabitDetailViewModel
