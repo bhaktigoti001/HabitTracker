@@ -18,7 +18,8 @@ struct HabitAnalytics {
     
     func currentStreak() -> Int {
         guard let logs = habit.logs as? Set<HabitLog> else { return 0 }
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
         
         let uniqueLogDates = logs
             .filter({ $0.value == habit.targetCount })
@@ -28,7 +29,7 @@ struct HabitAnalytics {
         let completedDaysSet = Set(uniqueLogDates)
         
         var streak = 0
-        var currentDay = calendar.startOfDay(for: Date())
+        var currentDay = calendar.startOfDay(for: Date().timezoneDate)
         
         if !completedDaysSet.contains(currentDay) {
             currentDay = calendar.date(byAdding: .day, value: -1, to: currentDay)!
@@ -57,8 +58,9 @@ struct HabitAnalytics {
             return "No Completion"
         }
 
-        let calendar = Calendar.current
-        let now = calendar.startOfDay(for: Date())
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
+        let now = calendar.startOfDay(for: Date().timezoneDate)
         let logDay = calendar.startOfDay(for: lastDate)
         let dayDiff = calendar.dateComponents([.day], from: logDay, to: now).day ?? 0
 
@@ -67,10 +69,12 @@ struct HabitAnalytics {
         case 1: return "Yesterday"
         case 2...6:
             let formatter = DateFormatter()
+            formatter.timeZone = TimeZone.current
             formatter.dateFormat = "EEEE"
             return formatter.string(from: lastDate)
         default:
             let formatter = DateFormatter()
+            formatter.timeZone = TimeZone.current
             formatter.dateStyle = .medium
             return formatter.string(from: lastDate)
         }
@@ -81,8 +85,9 @@ struct HabitAnalytics {
             return "0%"
         }
 
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
+        let today = calendar.startOfDay(for: Date().timezoneDate)
         
         guard let startOfWeek = today.startOfWeek else {
                 return "0%"

@@ -79,8 +79,9 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     var last7DaysLogSummary: [DailyLog] {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
+        let today = calendar.startOfDay(for: Date().timezoneDate)
         let past7Days = (0..<7).compactMap {
             calendar.date(byAdding: .day, value: -$0, to: today)
         }
@@ -106,7 +107,7 @@ class HabitDetailViewModel: ObservableObject {
     private func logCompletion(for habit: Habit) {
         let log = HabitLog(context: viewContext)
         log.id = UUID()
-        log.date = Date()
+        log.date = Date().timezoneDate
         log.value = habit.currentCount
         log.habit = habit
 
@@ -143,8 +144,9 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     func checkIfNewDayAndReset() {
-        let calendar = Calendar.current
-        let now = Date()
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
+        let now = Date().timezoneDate
 
         guard let lastDate = habit.lastUpdated else {
             habit.lastUpdated = now
@@ -160,8 +162,9 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     func filteredLogs(for filter: HabitLogFilter) -> [HabitLog] {
-        let calendar = Calendar.current
-        let now = Date()
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
+        let now = Date().timezoneDate
 
         switch filter {
         case .all:
@@ -183,10 +186,11 @@ class HabitDetailViewModel: ObservableObject {
     }
     
     func logEntries(for filter: HabitLogFilter) -> [HabitLogEntry] {
-        let calendar = Calendar.current
-        let today = Date().startOfDay
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
+        let today = Date().timezoneDate
         let logs = sortedLogs
-        let installDate = habit.createdAt ?? Date()
+        let installDate = habit.createdAt ?? Date().timezoneDate
         let habitTarget = habit.targetCount
 
         // Group logs by day → count completions per day
@@ -253,7 +257,8 @@ class HabitDetailViewModel: ObservableObject {
 
     func groupedLogsByWeek(for filter: HabitLogFilter) -> [(weekStart: Date, entries: [HabitLogEntry])] {
         let logs = logEntries(for: filter)
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
         
         let grouped = Dictionary(grouping: logs) { entry -> Date in
             calendar.dateInterval(of: .weekOfYear, for: entry.date)?.start ?? entry.date

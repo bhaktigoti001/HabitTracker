@@ -30,26 +30,21 @@ struct MainHabitListView: View {
 
     var body: some View {
         NavigationStack {
-            List { // ScrollView {
-//                LazyVStack {
-                    ForEach(habits, id: \.id) { habit in
-//                        NavigationLink(destination: HabitDetailView(habit: habit)) {
-                            HabitRowView(
-                                isDetailed: $isDetailed,
-                                isHistory: $isHistory,
-                                habit: habit,
-                                onEdit: {
-                                    viewModel.startEditFlow(for: habit)
-                                },
-                                onDelete: {
-                                    viewModel.deleteHabit(habit)
-                                }
-                            )
-                            .padding(.vertical, 4)
+            List {
+                ForEach(habits, id: \.id) { habit in
+                    HabitRowView(
+                        isDetailed: $isDetailed,
+                        isHistory: $isHistory,
+                        habit: habit,
+                        onEdit: {
+                            viewModel.startEditFlow(for: habit)
+                        },
+                        onDelete: {
+                            viewModel.deleteHabit(habit)
                         }
-//                    }
-//                }
-//                .padding(.horizontal)
+                    )
+                    .padding(.vertical, 4)
+                }
             }
             .safeAreaPadding(.bottom, 48)
             .navigationTitle("My Habits")

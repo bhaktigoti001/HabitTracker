@@ -61,8 +61,6 @@ struct HabitRowView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
-//        .padding()
-//        .background(Color(.systemGray6))
         .cornerRadius(8)
     }
 }

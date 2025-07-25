@@ -30,7 +30,7 @@ class AddEditHabitViewModel: ObservableObject {
             self.desc = habit.desc ?? ""
             self.targetCount = Int(habit.targetCount)
             self.enableReminder = habit.reminderTime != nil
-            self.reminderTime = habit.reminderTime ?? Date()
+            self.reminderTime = habit.reminderTime ?? Date().timezoneDate
         }
     }
 
@@ -41,14 +41,14 @@ class AddEditHabitViewModel: ObservableObject {
         if isNew {
             habitToSave.id = UUID()
             habitToSave.currentCount = 0
-            habitToSave.createdAt = Date()
+            habitToSave.createdAt = Date().timezoneDate
         }
 
         habitToSave.name = name
         habitToSave.desc = desc
         habitToSave.targetCount = Int16(targetCount)
         habitToSave.reminderTime = enableReminder ? reminderTime : nil
-        habitToSave.updatedAt = Date()
+        habitToSave.updatedAt = Date().timezoneDate
 
         do {
             try context.save()
