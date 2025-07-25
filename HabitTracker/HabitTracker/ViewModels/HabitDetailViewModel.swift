@@ -98,9 +98,7 @@ class HabitDetailViewModel: ObservableObject {
         guard habit.currentCount < habit.targetCount else { return }
         habit.currentCount += 1
 
-        if habit.currentCount == habit.targetCount {
-            logCompletion(for: habit)
-        }
+        logCompletion(for: habit)
 
         save()
     }
@@ -109,7 +107,7 @@ class HabitDetailViewModel: ObservableObject {
         let log = HabitLog(context: viewContext)
         log.id = UUID()
         log.date = Date()
-        log.value = 1
+        log.value = habit.currentCount
         log.habit = habit
 
         save()
@@ -188,13 +186,14 @@ class HabitDetailViewModel: ObservableObject {
         let calendar = Calendar.current
         let today = Date().startOfDay
         let logs = sortedLogs
-        let installDate = AppInfo.shared.installDate.startOfDay
+        let installDate = habit.createdAt ?? Date()
         let habitTarget = habit.targetCount
 
         // Group logs by day → count completions per day
         let logsGroupedByDay: [Date: Int] = logs.reduce(into: [:]) { result, log in
-            if let logDate = log.date?.startOfDay {
-                result[logDate, default: 0] += 1
+            if let logDate = log.date {
+                let dayStart = calendar.startOfDay(for: logDate)
+                result[dayStart, default: 0] += 1
             }
         }
 
@@ -202,7 +201,7 @@ class HabitDetailViewModel: ObservableObject {
 
         switch filter {
         case .all:
-            let days = calendar.dateComponents([.day], from: installDate, to: today).day ?? 0
+            let days = calendar.dateComponents([.day], from: installDate.startOfDay, to: today).day ?? 0
             if days >= 0 {
                 dateRange = (0...days).compactMap {
                     calendar.date(byAdding: .day, value: -$0, to: today)?.startOfDay
@@ -210,16 +209,20 @@ class HabitDetailViewModel: ObservableObject {
             }
 
         case .week:
-            if let startOfWeek = today.startOfWeek {
-                dateRange = (0..<7).compactMap {
+            if let startOfWeek = today.startOfWeek, let endOfWeek = today.endOfWeek {
+                let days = calendar.dateComponents([.day], from: startOfWeek, to: endOfWeek).day ?? 0
+                dateRange = (0...days).compactMap {
                     calendar.date(byAdding: .day, value: $0, to: startOfWeek)?.startOfDay
-                }.filter { $0 >= installDate && $0 <= today }
+                }.filter { $0 >= installDate.startOfDay && $0 <= today.startOfDay }
             }
 
         case .month:
             if let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: today)) {
-                dateRange = Date.dates(from: startOfMonth, to: today)
-                    .filter { $0 >= installDate && $0 <= today }
+                let days = calendar.dateComponents([.day], from: startOfMonth, to: today).day ?? 0
+                dateRange = (0...days).compactMap {
+                    calendar.date(byAdding: .day, value: $0, to: startOfMonth)?.startOfDay
+                }
+                .filter { $0 >= installDate.startOfDay && $0 <= today.startOfDay }
             }
         }
 

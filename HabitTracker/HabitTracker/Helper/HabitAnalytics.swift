@@ -15,51 +15,33 @@ struct HabitAnalytics {
     init(habit: Habit) {
         self.habit = habit
     }
-
-    /*
-     func currentStreak() -> Int {
-         guard let logs = habit.logs as? Set<HabitLog> else { return 0 }
-         let calendar = Calendar.current
-         let uniqueLogDates = logs
-             .compactMap { $0.date }
-             .map { calendar.startOfDay(for: $0) }
-
-         var streak = 0
-         var currentDay = calendar.startOfDay(for: Date())
-
-         while uniqueLogDates.contains(currentDay) {
-             streak += 1
-             guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDay) else {
-                 break
-             }
-             currentDay = previousDay
-         }
-
-         return streak
-     }
-     */
     
     func currentStreak() -> Int {
         guard let logs = habit.logs as? Set<HabitLog> else { return 0 }
-
-        let dates = logs.compactMap { $0.date }.map { Calendar.current.startOfDay(for: $0) }
-        let uniqueDates = Set(dates)
-
+        let calendar = Calendar.current
+        
+        let uniqueLogDates = logs
+            .filter({ $0.value == habit.targetCount })
+            .compactMap { $0.date }
+            .map { calendar.startOfDay(for: $0) }
+        
+        let completedDaysSet = Set(uniqueLogDates)
+        
         var streak = 0
-        var dayOffset = 0
-
-        while true {
-            guard let date = Calendar.current.date(byAdding: .day, value: -dayOffset, to: Date()) else { break }
-            let day = Calendar.current.startOfDay(for: date)
-
-            if uniqueDates.contains(day) {
-                streak += 1
-                dayOffset += 1
-            } else {
+        var currentDay = calendar.startOfDay(for: Date())
+        
+        if !completedDaysSet.contains(currentDay) {
+            currentDay = calendar.date(byAdding: .day, value: -1, to: currentDay)!
+        }
+        
+        while completedDaysSet.contains(currentDay) {
+            streak += 1
+            guard let previousDay = calendar.date(byAdding: .day, value: -1, to: currentDay) else {
                 break
             }
+            currentDay = previousDay
         }
-
+        
         return streak
     }
 
@@ -69,7 +51,7 @@ struct HabitAnalytics {
         }
 
         guard let lastDate = logSet
-            .filter({ $0.value > 0 })
+            .filter({ $0.value == habit.targetCount })
             .compactMap({ $0.date })
             .max() else {
             return "No Completion"
@@ -101,13 +83,16 @@ struct HabitAnalytics {
 
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        let weekAgo = calendar.date(byAdding: .day, value: -6, to: today)!
+        
+        guard let startOfWeek = today.startOfWeek else {
+                return "0%"
+            }
 
         let completedDays = Set<Date>(
             logSet.compactMap { log in
                 guard let date = log.date else { return nil }
                 let day = calendar.startOfDay(for: date)
-                return (log.value > 0 && day >= weekAgo && day <= today) ? day : nil
+                return (log.value == habit.targetCount && day >= startOfWeek && day <= today) ? day : nil
             }
         )
 

@@ -43,7 +43,7 @@ struct HabitDetailView: View {
                         .padding(.vertical, 4)
                 }
                 
-                Section("History") {
+                Section {
                     NavigationLink(destination: HabitHistoryView(viewModel: viewModel, isHistory: $isHistory)) {
                         Label("View History", systemImage: "clock.arrow.circlepath")
                             .font(.subheadline)
