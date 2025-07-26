@@ -39,8 +39,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        print(response.notification.request.identifier.replacingOccurrences(of: "streakRisk_", with: ""))
-        let navTarget = NotificationNavigationTarget.habit(id: response.notification.request.identifier.replacingOccurrences(of: "streakRisk_", with: ""))
+        print(response.notification.request.identifier)
+        let identifier = response.notification.request.identifier
+        let remove = identifier.contains("habit_") ? "habit_" : "streakRisk_"
+        let navTarget = NotificationNavigationTarget.habit(id: identifier.replacingOccurrences(of: remove, with: ""))
         self.notificationManager?.navigate(to: navTarget)
         NotificationCenter.default.post(name: .didReceiveNotificationNavigationTarget, object: navTarget)
     }
