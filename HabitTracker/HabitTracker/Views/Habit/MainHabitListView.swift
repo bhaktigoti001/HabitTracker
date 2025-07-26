@@ -32,23 +32,46 @@ struct MainHabitListView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(habits, id: \.id) { habit in
-                    HabitRowView(
-                        isDetailed: $isDetailed,
-                        isHistory: $isHistory,
-                        habit: habit,
-                        onEdit: {
-                            viewModel.startEditFlow(for: habit)
-                        },
-                        onDelete: {
-                            viewModel.deleteHabit(habit)
+            Group {
+                if habits.isEmpty {
+                    VStack(spacing: 16) {
+                        Image(systemName: "list.bullet.rectangle")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .foregroundColor(.gray.opacity(0.4))
+                        
+                        Text("No habits yet")
+                            .font(.headline)
+                            .foregroundColor(.gray)
+                        
+                        Text("Tap the '+' button to create your first habit.")
+                            .font(.subheadline)
+                            .foregroundColor(.gray.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List {
+                        ForEach(habits, id: \.id) { habit in
+                            HabitRowView(
+                                isDetailed: $isDetailed,
+                                isHistory: $isHistory,
+                                habit: habit,
+                                onEdit: {
+                                    viewModel.startEditFlow(for: habit)
+                                },
+                                onDelete: {
+                                    viewModel.deleteHabit(habit)
+                                }
+                            )
+                            .padding(.vertical, 4)
                         }
-                    )
-                    .padding(.vertical, 4)
+                    }
+                    .safeAreaPadding(.bottom, 48)
                 }
             }
-            .safeAreaPadding(.bottom, 48)
             .navigationTitle("My Habits")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

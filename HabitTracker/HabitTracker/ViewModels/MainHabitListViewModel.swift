@@ -23,6 +23,9 @@ class MainHabitListViewModel: ObservableObject {
         viewContext.delete(habit)
         do {
             try viewContext.save()
+            if let id = habit.id?.uuidString {
+                NotificationManager.shared.cancelNotification(for: id)
+            }
         } catch {
             print("Error deleting habit: \(error.localizedDescription)")
         }

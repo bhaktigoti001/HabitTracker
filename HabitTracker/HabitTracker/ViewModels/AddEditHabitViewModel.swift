@@ -42,6 +42,10 @@ class AddEditHabitViewModel: ObservableObject {
             habitToSave.id = UUID()
             habitToSave.currentCount = 0
             habitToSave.createdAt = Date().timezoneDate
+        } else {
+            if let id = habitToSave.id?.uuidString {
+                NotificationManager.shared.cancelNotification(for: id)
+            }
         }
 
         habitToSave.name = name
@@ -52,7 +56,7 @@ class AddEditHabitViewModel: ObservableObject {
 
         do {
             try context.save()
-            NotificationManager.shared.scheduleNotification(for: name, at: reminderTime, isDailyReminderOn: isDailyReminderOn)
+            NotificationManager.shared.scheduleNotification(for: habitToSave, at: reminderTime, isDailyReminderOn: isDailyReminderOn)
             NotificationManager.shared.scheduleStreakRiskReminder(for: habitToSave)
         } catch {
             print("Failed to save habit: \(error.localizedDescription)")

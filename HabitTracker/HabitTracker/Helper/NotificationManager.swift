@@ -21,7 +21,7 @@ class NotificationManager {
         }
     }
     
-    func scheduleNotification(for habitName: String, at date: Date, isDailyReminderOn: Bool) {
+    func scheduleNotification(for habit: Habit, at time: Date, isDailyReminderOn: Bool) {
         guard isDailyReminderOn else {
             print("Daily reminder is off. No notification scheduled.")
             return
@@ -29,19 +29,24 @@ class NotificationManager {
         
         let content = UNMutableNotificationContent()
         content.title = "Habit Reminder"
-        content.body = "Don't forget to complete your habit: \(habitName)"
+        content.body = "Don't forget to complete your habit: \(habit.name ?? "")"
         content.sound = .default
-        
-        let triggerDate = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
-        
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
-        
+
+        // Repeat daily at hour & minute
+        let dailyTriggerTime = Calendar.current.dateComponents([.hour, .minute], from: time)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dailyTriggerTime, repeats: true)
+
+        let request = UNNotificationRequest(
+            identifier: "habit_\(habit.id?.uuidString ?? UUID().uuidString)", // unique & overwrite-able
+            content: content,
+            trigger: trigger
+        )
+
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
                 print("Error scheduling notification: \(error)")
             } else {
-                print("Notification scheduled for \(date)")
+                print("Daily notification scheduled for \(habit.name ?? "") at \(dailyTriggerTime.hour ?? 0):\(dailyTriggerTime.minute ?? 0)")
             }
         }
     }
@@ -91,5 +96,15 @@ class NotificationManager {
             guard let logDate = log.date else { return false }
             return Calendar.current.isDate(logDate, inSameDayAs: today)
         }
+    }
+    
+    func cancelNotification(for habitId: String) {
+        let id = "habit_\(habitId)"
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
+    }
+    
+    func cancelAllHabitNotifications() {
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        print("All habit notifications cancelled")
     }
 }

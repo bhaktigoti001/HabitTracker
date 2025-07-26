@@ -13,20 +13,25 @@ struct CircularProgressView: View {
     var lineWidth: CGFloat = 10
 
     var body: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.gray.opacity(0.2), lineWidth: lineWidth)
+        GeometryReader { geometry in
+            let size = min(geometry.size.width, geometry.size.height)
 
-            Circle()
-                .trim(from: 0, to: progress)
-                .stroke(Color.green, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-                .animation(.easeInOut(duration: 0.4), value: progress)
+            ZStack {
+                Circle()
+                    .stroke(Color.gray.opacity(0.2), lineWidth: lineWidth)
 
-            Text(String(format: "%.0f%%", progress * 100))
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(.blue)
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(Color.green, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeInOut(duration: 0.4), value: progress)
+
+                Text(String(format: "%.0f%%", progress * 100))
+                    .font(.system(size: size * 0.2, weight: .bold))
+                    .foregroundColor(.blue)
+            }
+            .frame(width: size, height: size)
         }
+        .aspectRatio(1, contentMode: .fit)
     }
 }

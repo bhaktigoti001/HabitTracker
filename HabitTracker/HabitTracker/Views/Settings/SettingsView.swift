@@ -16,6 +16,11 @@ struct SettingsView: View {
             Form {
                 Toggle("Dark Mode", isOn: $appSettings.isDarkModeOn)
                 Toggle("Daily Reminder", isOn: $isDailyReminderOn)
+                    .onChange(of: isDailyReminderOn) { newValue in
+                        if !newValue {
+                            NotificationManager.shared.cancelAllHabitNotifications()
+                        }
+                    }
             }
             .navigationTitle("Settings")
         }
