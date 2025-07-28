@@ -23,14 +23,14 @@ extension Date {
         var gregorian = Calendar(identifier: .gregorian)
         gregorian.timeZone = TimeZone.current
         guard let sunday = gregorian.date(from: gregorian.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)) else { return nil }
-        return gregorian.date(byAdding: .day, value: 1, to: sunday)
+        return gregorian.date(byAdding: .day, value: 0, to: sunday)
     }
     
     var endOfWeek: Date? {
         var gregorian = Calendar(identifier: .gregorian)
         gregorian.timeZone = TimeZone.current
         guard let sunday = gregorian.date(from: gregorian.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)) else { return nil }
-        return gregorian.date(byAdding: .day, value: 7, to: sunday)
+        return gregorian.date(byAdding: .day, value: 6, to: sunday)
     }
     
     func formattedReminderTime(from date: Date) -> String {

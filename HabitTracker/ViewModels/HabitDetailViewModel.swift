@@ -29,7 +29,7 @@ struct HabitLogEntry: Identifiable, Hashable {
         var title: String {
             switch self {
             case .completed: return "Completed"
-            case .inProgress: return "InProgress" // Changed from "clock.fill" for better visual
+            case .inProgress: return "InProgress"
             case .missed: return "Missed"
             }
         }
@@ -37,7 +37,7 @@ struct HabitLogEntry: Identifiable, Hashable {
         var iconName: String {
             switch self {
             case .completed: return "checkmark.circle.fill"
-            case .inProgress: return "hourglass" // Changed from "clock.fill" for better visual
+            case .inProgress: return "hourglass"
             case .missed: return "xmark.circle.fill"
             }
         }
