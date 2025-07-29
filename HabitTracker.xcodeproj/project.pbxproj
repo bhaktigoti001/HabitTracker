@@ -6,20 +6,86 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BDF8BA5B2E38CE6200A039A9 /* HabitTrackerAppClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = BDF8BA472E38CE6100A039A9 /* HabitTrackerAppClip.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BDF8BA592E38CE6200A039A9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BD815D812E2F90DC00AF7DE5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BDF8BA462E38CE6100A039A9;
+			remoteInfo = HabitTrackerAppClip;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BDF8BA5C2E38CE6200A039A9 /* Embed App Clips */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/AppClips";
+			dstSubfolderSpec = 16;
+			files = (
+				BDF8BA5B2E38CE6200A039A9 /* HabitTrackerAppClip.app in Embed App Clips */,
+			);
+			name = "Embed App Clips";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		BD815D892E2F90DC00AF7DE5 /* HabitTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HabitTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BDF8BA472E38CE6100A039A9 /* HabitTrackerAppClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HabitTrackerAppClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BDF8BA5F2E38CE6200A039A9 /* Exceptions for "HabitTrackerAppClip" folder in "HabitTrackerAppClip" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BDF8BA462E38CE6100A039A9 /* HabitTrackerAppClip */;
+		};
+		BDF8BA622E38CF9A00A039A9 /* Exceptions for "HabitTracker" folder in "HabitTrackerAppClip" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				HabitTracker.xcdatamodeld,
+				Persistence/Persistence.swift,
+				Views/Habit/RowViews/CircularProgressView.swift,
+			);
+			target = BDF8BA462E38CE6100A039A9 /* HabitTrackerAppClip */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		BD815D8B2E2F90DC00AF7DE5 /* HabitTracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BDF8BA622E38CF9A00A039A9 /* Exceptions for "HabitTracker" folder in "HabitTrackerAppClip" target */,
+			);
 			path = HabitTracker;
+			sourceTree = "<group>";
+		};
+		BDF8BA482E38CE6100A039A9 /* HabitTrackerAppClip */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BDF8BA5F2E38CE6200A039A9 /* Exceptions for "HabitTrackerAppClip" folder in "HabitTrackerAppClip" target */,
+			);
+			path = HabitTrackerAppClip;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		BD815D862E2F90DC00AF7DE5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BDF8BA442E38CE6100A039A9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				BD815D8B2E2F90DC00AF7DE5 /* HabitTracker */,
+				BDF8BA482E38CE6100A039A9 /* HabitTrackerAppClip */,
 				BD815D8A2E2F90DC00AF7DE5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				BD815D892E2F90DC00AF7DE5 /* HabitTracker.app */,
+				BDF8BA472E38CE6100A039A9 /* HabitTrackerAppClip.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,10 +123,12 @@
 				BD815D852E2F90DC00AF7DE5 /* Sources */,
 				BD815D862E2F90DC00AF7DE5 /* Frameworks */,
 				BD815D872E2F90DC00AF7DE5 /* Resources */,
+				BDF8BA5C2E38CE6200A039A9 /* Embed App Clips */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				BDF8BA5A2E38CE6200A039A9 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				BD815D8B2E2F90DC00AF7DE5 /* HabitTracker */,
@@ -69,6 +139,28 @@
 			productName = HabitTracker;
 			productReference = BD815D892E2F90DC00AF7DE5 /* HabitTracker.app */;
 			productType = "com.apple.product-type.application";
+		};
+		BDF8BA462E38CE6100A039A9 /* HabitTrackerAppClip */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BDF8BA602E38CE6200A039A9 /* Build configuration list for PBXNativeTarget "HabitTrackerAppClip" */;
+			buildPhases = (
+				BDF8BA432E38CE6100A039A9 /* Sources */,
+				BDF8BA442E38CE6100A039A9 /* Frameworks */,
+				BDF8BA452E38CE6100A039A9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BDF8BA482E38CE6100A039A9 /* HabitTrackerAppClip */,
+			);
+			name = HabitTrackerAppClip;
+			packageProductDependencies = (
+			);
+			productName = HabitTrackerAppClip;
+			productReference = BDF8BA472E38CE6100A039A9 /* HabitTrackerAppClip.app */;
+			productType = "com.apple.product-type.application.on-demand-install-capable";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +173,9 @@
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					BD815D882E2F90DC00AF7DE5 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					BDF8BA462E38CE6100A039A9 = {
 						CreatedOnToolsVersion = 16.2;
 					};
 				};
@@ -100,12 +195,20 @@
 			projectRoot = "";
 			targets = (
 				BD815D882E2F90DC00AF7DE5 /* HabitTracker */,
+				BDF8BA462E38CE6100A039A9 /* HabitTrackerAppClip */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		BD815D872E2F90DC00AF7DE5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BDF8BA452E38CE6100A039A9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +225,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BDF8BA432E38CE6100A039A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BDF8BA5A2E38CE6200A039A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BDF8BA462E38CE6100A039A9 /* HabitTrackerAppClip */;
+			targetProxy = BDF8BA592E38CE6200A039A9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		BD815D9A2E2F90DE00AF7DE5 /* Debug */ = {
@@ -249,9 +367,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitTracker/HabitTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HabitTracker/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -277,9 +397,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitTracker/HabitTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HabitTracker/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -293,6 +415,70 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prodev.HabitTracker;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BDF8BA5D2E38CE6200A039A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitTrackerAppClip/HabitTrackerAppClip.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"HabitTrackerAppClip/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HabitTrackerAppClip/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = HabitTracker;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prodev.HabitTracker.Clip;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BDF8BA5E2E38CE6200A039A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitTrackerAppClip/HabitTrackerAppClip.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"HabitTrackerAppClip/Preview Content\"";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HabitTrackerAppClip/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = HabitTracker;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prodev.HabitTracker.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -317,6 +503,15 @@
 			buildConfigurations = (
 				BD815D9D2E2F90DE00AF7DE5 /* Debug */,
 				BD815D9E2E2F90DE00AF7DE5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BDF8BA602E38CE6200A039A9 /* Build configuration list for PBXNativeTarget "HabitTrackerAppClip" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDF8BA5D2E38CE6200A039A9 /* Debug */,
+				BDF8BA5E2E38CE6200A039A9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
