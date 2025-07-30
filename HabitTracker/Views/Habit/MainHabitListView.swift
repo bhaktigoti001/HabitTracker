@@ -86,6 +86,7 @@ struct MainHabitListView: View {
                 AddEditHabitView(habit: viewModel.selectedHabit, context: viewContext)
             }
             .onAppear {
+                viewModel.migrateAppClipHabitIfNeeded()
                 for habit in habits {
                     NotificationManager.shared.scheduleStreakRiskReminder(for: habit)
                 }

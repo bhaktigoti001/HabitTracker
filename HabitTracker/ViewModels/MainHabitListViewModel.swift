@@ -40,4 +40,50 @@ class MainHabitListViewModel: ObservableObject {
         selectedHabit = habit
         showAddHabit = true
     }
+    
+    func migrateAppClipHabitIfNeeded() {
+        // ❌ Skip if already migrated
+        guard !AppGroupStorage.hasMigrated() else { return }
+
+        // ❌ Skip if Core Data already has habits
+        let request: NSFetchRequest<Habit> = Habit.fetchRequest()
+        request.fetchLimit = 1
+
+        if let result = try? viewContext.fetch(request), !result.isEmpty {
+            AppGroupStorage.markMigrated()
+            return
+        }
+
+        guard let clipHabitName = AppGroupStorage.getHabit(),
+              !clipHabitName.isEmpty else {
+            AppGroupStorage.markMigrated()
+            return
+        }
+
+        let newHabit = Habit(context: viewContext)
+        newHabit.id = UUID()
+        newHabit.name = clipHabitName
+        newHabit.targetCount = 1
+        newHabit.createdAt = Date()
+        newHabit.currentCount = AppGroupStorage.getIsCompleted() ? 1 : 0
+        
+        if AppGroupStorage.getIsCompleted() {
+            let log = HabitLog(context: viewContext)
+            log.id = UUID()
+            log.date = Date().timezoneDate
+            log.value = newHabit.currentCount
+            log.habit = newHabit
+        }
+
+        do {
+            try viewContext.save()
+            AppGroupStorage.clear()
+            AppGroupStorage.markMigrated()
+            print("✅ Migrated App Clip habit into Core Data")
+        } catch {
+            print("❌ Failed to migrate App Clip habit: \(error)")
+        }
+    }
+
+
 }
