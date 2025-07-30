@@ -30,6 +30,7 @@ struct QuickHabitCreatorView: View {
 
                     Button("Start Tracking") {
                         AppGroupStorage.saveHabit(name: habitName)
+                        scheduleOneTimeReminder(habitName: habitName)
                         isTracking = true
                     }
                     .disabled(habitName.isEmpty)
@@ -51,7 +52,6 @@ struct QuickHabitCreatorView: View {
                             completedToday = true
                             AppGroupStorage.lastCompletedDate = Date()
                             AppGroupStorage.saveCompletedDays()
-                            scheduleReminder()
                         }
                         .buttonStyle(FilledButtonStyle(color: .green))
                     } else {
@@ -77,17 +77,24 @@ struct QuickHabitCreatorView: View {
             }
         }
     }
-
-    func scheduleReminder() {
+    
+    func scheduleOneTimeReminder(habitName: String, after timeInterval: TimeInterval = 10) {
         let content = UNMutableNotificationContent()
-        content.title = "Keep it going!"
-        content.body = "Remember to complete your habit tomorrow!"
+        content.title = "Habit Reminder"
+        content.body = "Don't forget to complete your habit: \(habitName)"
         content.sound = .default
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3600, repeats: false)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
 
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request)
+        let request = UNNotificationRequest(identifier: "appclip_habit_reminder", content: content, trigger: trigger)
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("❌ App Clip notification error: \(error)")
+            } else {
+                print("✅ App Clip reminder scheduled in \(Int(timeInterval / 60)) minutes")
+            }
+        }
     }
 }
 
@@ -103,5 +110,3 @@ struct FilledButtonStyle: ButtonStyle {
             .padding(.horizontal)
     }
 }
-
-
