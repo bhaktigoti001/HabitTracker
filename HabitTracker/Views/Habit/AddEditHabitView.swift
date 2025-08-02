@@ -11,7 +11,8 @@ import CoreData
 struct AddEditHabitView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var viewModel: AddEditHabitViewModel
-
+    @State private var showValidationError = false
+    
     init(habit: Habit? = nil, context: NSManagedObjectContext) {
         _viewModel = StateObject(wrappedValue: AddEditHabitViewModel(context: context, habit: habit))
     }
@@ -19,14 +20,25 @@ struct AddEditHabitView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Habit Details") {
+                Section(header: Text("Habit Details")) {
                     TextField("Name", text: $viewModel.name)
+                        .autocapitalization(.sentences)
+                        .disableAutocorrection(false)
+                    
                     TextField("Description", text: $viewModel.desc)
-                    Stepper("Target: \(viewModel.targetCount)", value: $viewModel.targetCount, in: 1...10)
+                        .autocapitalization(.sentences)
+                        .disableAutocorrection(true)
+                    
+                    Stepper(value: $viewModel.targetCount, in: 1...10) {
+                        Label("Target: \(viewModel.targetCount)", systemImage: "flag.fill")
+                    }
                 }
 
-                Section("Reminder") {
-                    Toggle("Enable Reminder", isOn: $viewModel.enableReminder)
+                Section(header: Text("Reminder")) {
+                    Toggle(isOn: $viewModel.enableReminder.animation(.easeInOut)) {
+                        Label("Enable Reminder", systemImage: "bell.fill")
+                    }
+                    
                     if viewModel.enableReminder {
                         DatePicker("Time", selection: $viewModel.reminderTime, displayedComponents: .hourAndMinute)
                     }
@@ -39,12 +51,21 @@ struct AddEditHabitView: View {
                         dismiss()
                     }
                 }
+                
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        viewModel.save()
-                        dismiss()
+                        if viewModel.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            showValidationError = true
+                        } else {
+                            viewModel.save()
+                            dismiss()
+                        }
                     }
+                    .disabled(viewModel.name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
+            }
+            .alert("Habit name can't be empty.", isPresented: $showValidationError) {
+                Button("OK", role: .cancel) { }
             }
         }
     }

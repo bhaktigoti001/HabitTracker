@@ -10,19 +10,19 @@ import CoreData
 
 struct MainHabitListView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject private var notificationManager: NotificationNavigationManager
 
     @FetchRequest(
         entity: Habit.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Habit.name, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Habit.createdAt, ascending: false)],
         animation: .default
     )
-    var habits: FetchedResults<Habit>
+    private var habits: FetchedResults<Habit>
 
     @StateObject private var viewModel: MainHabitListViewModel
     @Binding var isDetailed: Bool
     @Binding var isHistory: Bool
     @State private var navigationTarget: NotificationNavigationTarget?
-    @EnvironmentObject var notificationManager: NotificationNavigationManager
     
     init(isDetailed: Binding<Bool>, isHistory: Binding<Bool>) {
         _isDetailed = isDetailed
@@ -91,7 +91,7 @@ struct MainHabitListView: View {
                     NotificationManager.shared.scheduleStreakRiskReminder(for: habit)
                 }
             }
-            .onChange(of: notificationManager.navigationTarget) { newTarget in
+            .onChange(of: notificationManager.currentTarget) { newTarget in
                 if let target = newTarget {
                     navigationTarget = newTarget
                     notificationManager.clear()

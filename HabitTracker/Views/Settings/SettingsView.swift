@@ -8,21 +8,31 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("isDailyReminderOn") var isDailyReminderOn: Bool = true
-    @EnvironmentObject var appSettings: AppSettings
-    
+    @AppStorage("isDailyReminderOn") private var isDailyReminderOn: Bool = true
+    @EnvironmentObject private var appSettings: AppSettings
+
     var body: some View {
         NavigationStack {
             Form {
-                Toggle("Dark Mode", isOn: $appSettings.isDarkModeOn)
-                Toggle("Daily Reminder", isOn: $isDailyReminderOn)
+                Section(header: Text("Appearance")) {
+                    Toggle(isOn: $appSettings.isDarkModeOn) {
+                        Label("Dark Mode", systemImage: "moon.fill")
+                    }
+                }
+
+                Section(header: Text("Notifications")) {
+                    Toggle(isOn: $isDailyReminderOn) {
+                        Label("Daily Reminder", systemImage: "bell.fill")
+                    }
                     .onChange(of: isDailyReminderOn) { newValue in
                         if !newValue {
                             NotificationManager.shared.cancelAllHabitNotifications()
                         }
                     }
+                }
             }
             .navigationTitle("Settings")
         }
     }
 }
+

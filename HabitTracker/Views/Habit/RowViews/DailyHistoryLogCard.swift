@@ -11,15 +11,8 @@ struct DailyHistoryLogCard: View {
     let entry: HabitLogEntry
 
     var body: some View {
-        HStack(alignment: .center, spacing: 15) {
-            Image(systemName: entry.status.iconName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 22, height: 22)
-                .foregroundColor(entry.status.accentColor)
-                .padding(9)
-                .background(entry.status.accentColor.opacity(0.15))
-                .clipShape(Circle())
+        HStack(alignment: .center, spacing: 16) {
+            statusIcon
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(entry.date.formattedLogDate())
@@ -34,14 +27,34 @@ struct DailyHistoryLogCard: View {
 
             Spacer()
 
-            Text("✅ \(entry.count)/\(entry.goal) completed")
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(entry.status == .missed ? .red : .secondary)
+            completionStatus
         }
-        .padding(15)
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(15)
-        .shadow(color: Color.primary.opacity(0.08), radius: 8, x: 0, y: 4)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+                .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(entry.date.formattedLogDate()), status: \(entry.status.title), \(entry.count) out of \(entry.goal) completed")
+    }
+    
+    private var statusIcon: some View {
+        Image(systemName: entry.status.iconName)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 22, height: 22)
+            .foregroundColor(entry.status.accentColor)
+            .padding(10)
+            .background(entry.status.accentColor.opacity(0.15))
+            .clipShape(Circle())
+    }
+    
+    private var completionStatus: some View {
+        let color: Color = entry.status == .missed ? .red : .secondary
+        return Text("✅ \(entry.count)/\(entry.goal)")
+            .font(.caption)
+            .fontWeight(.medium)
+            .foregroundColor(color)
     }
 }

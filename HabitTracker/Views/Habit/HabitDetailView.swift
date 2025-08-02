@@ -9,15 +9,16 @@ import SwiftUI
 
 struct HabitDetailView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @State private var showEditSheet = false
     @StateObject private var viewModel: HabitDetailViewModel
+    @State private var showEditSheet = false
+
     @ObservedObject var habit: Habit
     @Binding var isDetailed: Bool
     @Binding var isHistory: Bool
 
     init(habit: Habit, isDetailed: Binding<Bool>, isHistory: Binding<Bool>) {
         self.habit = habit
-        _isDetailed = isDetailed
+        _isDetailed = isHistory
         _isHistory = isHistory
         _viewModel = StateObject(wrappedValue: HabitDetailViewModel(habit: habit, viewContext: PersistenceController.shared.container.viewContext))
     }
@@ -25,138 +26,148 @@ struct HabitDetailView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    VStack(alignment: .leading, spacing: 24) {
-                        headerSection
-                        progressSection
-                    }
-                }
-                .padding(.vertical, 4)
-                
-                Section {
+                headerSection
+                progressSection
+                if viewModel.habit.reminderTime != nil {
                     reminderSection
-                        .padding(.vertical, 4)
                 }
-                
-                Section("Analytics") {
-                    analyticsSection
-                        .padding(.vertical, 4)
-                }
-                
-                Section {
-                    NavigationLink(destination: HabitHistoryView(viewModel: viewModel, isHistory: $isHistory)) {
-                        Label("View History", systemImage: "clock.arrow.circlepath")
-                            .font(.subheadline)
-                            .foregroundColor(.blue)
+                analyticsSection
+                historyLinkSection
+            }
+            .listStyle(.insetGrouped)
+            .navigationTitle("Habit Detail")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showEditSheet = true
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
                     }
-                    .padding(.vertical, 4)
                 }
             }
-        }
-        .onAppear {
-            isDetailed = true
-            viewModel.checkIfNewDayAndReset()
-        }
-        .onDisappear(perform: {
-            isDetailed = false
-        })
-        .toolbar {
-            Button {
-                showEditSheet = true
-            } label: {
-                Label("Edit", systemImage: "pencil")
+            .sheet(isPresented: $showEditSheet) {
+                AddEditHabitView(habit: viewModel.habit, context: viewContext)
             }
-        }
-        .sheet(isPresented: $showEditSheet) {
-            AddEditHabitView(habit: viewModel.habit, context: viewContext)
+            .onAppear {
+                isDetailed = true
+                viewModel.checkIfNewDayAndReset()
+            }
+            .onDisappear {
+                isDetailed = false
+            }
         }
     }
 
-    @ViewBuilder
+    // MARK: - Header
+
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(viewModel.habit.name ?? "Untitled")
-                .font(.title)
-                .fontWeight(.bold)
+        Section {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(viewModel.habit.name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Untitled")
+                    .font(.title)
+                    .fontWeight(.bold)
 
-            if let desc = viewModel.habit.desc, !desc.isEmpty {
-                Text(desc)
-                    .font(.body)
-                    .foregroundColor(.secondary)
+                if let desc = viewModel.habit.desc, !desc.trimmingCharacters(in: .whitespaces).isEmpty {
+                    Text(desc)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
+
+                Text("🎯 Daily Goal: \(viewModel.habit.targetCount)")
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
             }
-
-            Text("🎯 Daily Goal: \(viewModel.habit.targetCount)")
-                .font(.subheadline)
-                .foregroundColor(.blue)
+            .padding(.vertical, 8)
         }
     }
 
-    @ViewBuilder
+    // MARK: - Progress
+
     private var progressSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .center, spacing: 32) {
-                CircularProgressView(progress: viewModel.progressRatio)
-                    .frame(width: 100, height: 100)
-                    .padding(.vertical, 4)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Today's Progress")
-                        .font(.headline)
+        Section {
+            VStack(spacing: 16) {
+                HStack(alignment: .center, spacing: 24) {
+                    CircularProgressView(progress: viewModel.progressRatio)
+                        .frame(width: 90, height: 90)
 
-                    Text("Completed \(viewModel.habit.currentCount)/\(viewModel.habit.targetCount)")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-
-                Spacer()
-            }
-
-            if viewModel.habit.currentCount < viewModel.habit.targetCount {
-                Button(action: {
-                    withAnimation {
-                        viewModel.incrementProgress()
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Today's Progress")
+                            .font(.headline)
+                        Text("Completed \(viewModel.habit.currentCount)/\(viewModel.habit.targetCount)")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
                     }
-                }) {
-                    Label("Mark as Done", systemImage: "plus.circle.fill")
-                        .font(.headline)
-                        .foregroundColor(.blue)
                 }
-                .padding(.top, 4)
-                .transition(.opacity)
+
+                if viewModel.habit.currentCount < viewModel.habit.targetCount {
+                    Button(action: {
+                        withAnimation {
+                            viewModel.incrementProgress()
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        }
+                    }) {
+                        Label("Mark as Done", systemImage: "plus.circle.fill")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .transition(.opacity)
+                }
             }
+            .padding(.vertical, 8)
         }
         .animation(.easeInOut, value: viewModel.habit.currentCount)
     }
 
-    @ViewBuilder
+    // MARK: - Reminder
+
     private var reminderSection: some View {
-        if let time = viewModel.habit.reminderTime {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("⏰ Reminder")
+        Section(header: Text("Reminder")) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("⏰ Reminder Time")
                     .font(.headline)
-                Text(Date().formattedReminderTime(from: time))
+                Text(Date().formattedReminderTime(from: viewModel.habit.reminderTime!))
                     .font(.subheadline)
                     .foregroundColor(.gray)
-                    .padding(.top, 4)
             }
         }
     }
 
-    @ViewBuilder
-    private var analyticsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 0) {
-                Text("🔥 Current streak: ").bold()
-                Text("\(viewModel.currentStreak()) days")
-            }
-            HStack(spacing: 0) {
-                Text("📆 Last completed: ").bold()
-                Text(viewModel.lastCompletedDate())
-            }
+    // MARK: - Analytics
 
-            HStack(spacing: 0) {
-                Text("✅ Weekly completion rate: ").bold()
-                Text(viewModel.weeklyCompletionRate())
+    private var analyticsSection: some View {
+        Section(header: Text("Analytics")) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 0) {
+                    Text("🔥 Current streak: ").bold()
+                    Text("\(viewModel.currentStreak()) days")
+                }
+
+                HStack(spacing: 0) {
+                    Text("📆 Last completed: ").bold()
+                    Text(viewModel.lastCompletedDate())
+                }
+
+                HStack(spacing: 0) {
+                    Text("✅ Weekly completion rate: ").bold()
+                    Text(viewModel.weeklyCompletionRate())
+                }
+            }
+            .font(.subheadline)
+        }
+    }
+
+    // MARK: - History
+
+    private var historyLinkSection: some View {
+        Section {
+            NavigationLink(destination: HabitHistoryView(viewModel: viewModel, isHistory: $isHistory)) {
+                Label("View History", systemImage: "clock.arrow.circlepath")
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
             }
         }
     }

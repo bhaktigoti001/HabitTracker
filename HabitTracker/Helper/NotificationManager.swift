@@ -12,13 +12,18 @@ class NotificationManager {
     static let shared = NotificationManager()
     
     func requestPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, _ in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             if granted {
                 print("Notifications allowed")
             } else {
                 print("Notifications denied")
             }
         }
+    }
+    
+    func configure(delegate: UNUserNotificationCenterDelegate) {
+        let center = UNUserNotificationCenter.current()
+        center.delegate = delegate
     }
     
     func scheduleNotification(for habit: Habit, at time: Date, isDailyReminderOn: Bool) {

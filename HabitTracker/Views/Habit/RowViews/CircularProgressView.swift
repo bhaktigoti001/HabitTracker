@@ -5,33 +5,48 @@
 //  Created by DREAMWORLD on 24/07/25.
 //
 
-
 import SwiftUI
 
 struct CircularProgressView: View {
     var progress: CGFloat
     var lineWidth: CGFloat = 10
+    var progressColor: Color = .green
+    var backgroundColor: Color = Color.gray.opacity(0.2)
+    var showPercentage: Bool = true
+    var labelColor: Color = .primary
 
     var body: some View {
         GeometryReader { geometry in
             let size = min(geometry.size.width, geometry.size.height)
 
             ZStack {
+                // Background Circle
                 Circle()
-                    .stroke(Color.gray.opacity(0.2), lineWidth: lineWidth)
+                    .stroke(backgroundColor, lineWidth: lineWidth)
 
+                // Progress Circle
                 Circle()
-                    .trim(from: 0, to: progress)
-                    .stroke(Color.green, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .trim(from: 0, to: max(min(progress, 1.0), 0.0))
+                    .stroke(
+                        progressColor,
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
+                    )
                     .rotationEffect(.degrees(-90))
-                    .animation(.easeInOut(duration: 0.4), value: progress)
+                    .animation(.interpolatingSpring(stiffness: 170, damping: 22), value: progress)
 
-                Text(String(format: "%.0f%%", progress * 100))
-                    .font(.system(size: size * 0.2, weight: .bold))
-                    .foregroundColor(.blue)
+                // Center Text
+                if showPercentage {
+                    Text("\(Int(progress * 100))%")
+                        .font(.system(size: size * 0.2, weight: .semibold, design: .rounded))
+                        .foregroundColor(labelColor)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                }
             }
             .frame(width: size, height: size)
         }
         .aspectRatio(1, contentMode: .fit)
+        .accessibilityLabel("Progress")
+        .accessibilityValue("\(Int(progress * 100)) percent")
     }
 }

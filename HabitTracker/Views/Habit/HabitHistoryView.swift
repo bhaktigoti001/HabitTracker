@@ -14,17 +14,24 @@ struct HabitHistoryView: View {
     @State private var selectedFilter: HabitLogFilter = .all
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             filterPicker
-                .padding(.horizontal)
+                .padding([.top, .horizontal])
                 .padding(.bottom, 8)
 
-            if viewModel.filteredLogs(for: selectedFilter).isEmpty {
-                emptyPlaceholder
-            } else {
-                logList
+            Group {
+                if viewModel.filteredLogs(for: selectedFilter).isEmpty {
+                    emptyPlaceholder
+                        .transition(.opacity.combined(with: .slide))
+                } else {
+                    logList
+                        .transition(.opacity.combined(with: .scale))
+                }
             }
+            .animation(.easeInOut, value: selectedFilter)
         }
+        .navigationTitle("History")
+        .navigationBarTitleDisplayMode(.inline)
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .onAppear {
             isHistory = true
@@ -33,6 +40,8 @@ struct HabitHistoryView: View {
             isHistory = false
         }
     }
+    
+    // MARK: - Filter Picker
 
     @ViewBuilder
     private var filterPicker: some View {
@@ -42,8 +51,11 @@ struct HabitHistoryView: View {
             }
         }
         .pickerStyle(.segmented)
+        .accessibilityLabel("History Filter")
     }
 
+    // MARK: - Empty Placeholder
+    
     @ViewBuilder
     private var emptyPlaceholder: some View {
         VStack(spacing: 12) {
@@ -51,29 +63,40 @@ struct HabitHistoryView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 80, height: 80)
-                .foregroundColor(.gray.opacity(0.4))
+                .foregroundColor(.gray.opacity(0.3))
 
-            Text("No history available for this filter.")
+            Text("No logs available")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            
+            Text("Try adjusting the filter to view other entries.")
                 .font(.subheadline)
-                .foregroundColor(.gray.opacity(0.6))
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
     }
 
+    // MARK: - Log List
+    
     @ViewBuilder
     private var logList: some View {
         let grouped = viewModel.groupedLogsByWeek(for: selectedFilter)
+        
         ScrollView {
-            LazyVStack(spacing: 15) {
+            LazyVStack(alignment: .leading, spacing: 20) {
                 ForEach(grouped, id: \.weekStart)  { group in
-                    VStack(alignment: .leading, spacing: 10) {
+                    Section {
                         Text(Date.formattedWeekRange(startDate: group.weekStart))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .padding(.horizontal, 5)
-
+                        
                         ForEach(group.entries) { entry in
                             DailyHistoryLogCard(entry: entry)
+                                .padding(.horizontal, 5)
                         }
                     }
                 }

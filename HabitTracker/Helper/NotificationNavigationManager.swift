@@ -8,15 +8,14 @@
 import SwiftUI
 
 class NotificationNavigationManager: ObservableObject {
-    @Published var navigationTarget: NotificationNavigationTarget? = nil
-
+    @Published var currentTarget: NotificationNavigationTarget?
+    
     func navigate(to target: NotificationNavigationTarget?) {
-        DispatchQueue.main.async {
-            self.navigationTarget = target
-        }
+        guard self.currentTarget != target else { return }
+        self.currentTarget = target
     }
 
     func clear() {
-        navigationTarget = nil
+        currentTarget = nil
     }
 }
