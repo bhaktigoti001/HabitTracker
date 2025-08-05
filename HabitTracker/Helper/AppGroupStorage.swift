@@ -11,6 +11,7 @@ struct AppGroupStorage {
     static let groupID = "group.com.prodev.habittracker"
     static let habitKey = "trackedHabit"
     static let isCompletedKey = "isCompleted"
+    static let lastCompletedDateKey = "lastCompletedDate"
     static let migrationKey = "appClipMigrationDone"
     
     static var defaults: UserDefaults? {
@@ -25,12 +26,14 @@ struct AppGroupStorage {
         return defaults?.string(forKey: habitKey)
     }
 
-    static func saveIsCompleted() {
-        defaults?.set(true, forKey: isCompletedKey)
+    static func saveCompletedDays() {
+        var list = AppGroupStorage.getCompletedDays()
+        list.append(Date())
+        defaults?.set(list, forKey: isCompletedKey)
     }
 
-    static func getIsCompleted() -> Bool {
-        return defaults?.bool(forKey: isCompletedKey) ?? false
+    static func getCompletedDays() -> [Date] {
+        return defaults?.array(forKey: isCompletedKey) as? [Date] ?? []
     }
     
     static func hasMigrated() -> Bool {
@@ -40,9 +43,25 @@ struct AppGroupStorage {
     static func markMigrated() {
         defaults?.set(true, forKey: migrationKey)
     }
+
+    static var lastCompletedDate: Date? {
+        get { defaults?.object(forKey: lastCompletedDateKey) as? Date }
+        set { defaults?.set(newValue, forKey: lastCompletedDateKey) }
+    }
+
+    static func completedToday() -> Bool {
+        guard let date = lastCompletedDate else { return false }
+        return Calendar.current.isDateInToday(date)
+    }
+    
+    static func completedYesterday() -> Bool {
+        guard let date = lastCompletedDate else { return false }
+        return Calendar.current.isDateInYesterday(date)
+    }
     
     static func clear() {
         defaults?.removeObject(forKey: habitKey)
         defaults?.removeObject(forKey: isCompletedKey)
+        defaults?.removeObject(forKey: lastCompletedDateKey)
     }
 }

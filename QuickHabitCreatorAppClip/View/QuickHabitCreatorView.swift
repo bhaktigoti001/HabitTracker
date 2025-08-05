@@ -40,16 +40,23 @@ struct QuickHabitCreatorView: View {
                     Text("Habit: \(AppGroupStorage.getHabit() ?? "")")
                         .font(.title2)
 
+                    if AppGroupStorage.completedYesterday() && !completedToday {
+                        Text("👏 You completed your habit yesterday too!")
+                            .font(.subheadline)
+                            .foregroundColor(.blue)
+                    }
+                    
                     if !completedToday {
                         Button("Mark as Done Today") {
                             completedToday = true
-                            AppGroupStorage.saveIsCompleted()
+                            AppGroupStorage.lastCompletedDate = Date()
+                            AppGroupStorage.saveCompletedDays()
                             scheduleReminder()
                         }
                         .buttonStyle(FilledButtonStyle(color: .green))
                     } else {
-                        Text("✅ Completed today")
-                            .foregroundColor(.gray)
+                        Text("✅ You've completed this habit today!")
+                            .foregroundColor(.green)
                     }
                 }
             }
@@ -65,8 +72,8 @@ struct QuickHabitCreatorView: View {
         .onAppear {
             if let saved = AppGroupStorage.getHabit() {
                 habitName = saved
-                completedToday = AppGroupStorage.getIsCompleted()
                 isTracking = true
+                completedToday = AppGroupStorage.completedToday()
             }
         }
     }

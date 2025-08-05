@@ -64,17 +64,13 @@ class MainHabitListViewModel: ObservableObject {
         newHabit.id = UUID()
         newHabit.name = clipHabitName
         newHabit.targetCount = 1
-        newHabit.createdAt = Date()
-        newHabit.currentCount = AppGroupStorage.getIsCompleted() ? 1 : 0
+        newHabit.createdAt = AppGroupStorage.getCompletedDays().first?.timezoneDate
+        newHabit.currentCount = AppGroupStorage.completedToday() ? 1 : 0
         
-        if AppGroupStorage.getIsCompleted() {
-            let log = HabitLog(context: viewContext)
-            log.id = UUID()
-            log.date = Date().timezoneDate
-            log.value = newHabit.currentCount
-            log.habit = newHabit
+        for date in AppGroupStorage.getCompletedDays() {
+            logCompletion(date: date, newHabit: newHabit)
         }
-
+        
         do {
             try viewContext.save()
             AppGroupStorage.clear()
@@ -84,6 +80,21 @@ class MainHabitListViewModel: ObservableObject {
             print("❌ Failed to migrate App Clip habit: \(error)")
         }
     }
-
+    
+    private func logCompletion(date: Date, newHabit: Habit) {
+        let log = HabitLog(context: viewContext)
+        log.id = UUID()
+        log.date = date.timezoneDate
+        log.value = 1
+        log.habit = newHabit
+    }
+    
+    private func save() {
+        do {
+            try viewContext.save()
+        } catch {
+            print("Failed to save progress: \(error)")
+        }
+    }
 
 }
