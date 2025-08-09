@@ -16,6 +16,47 @@ enum HabitLogFilter: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+struct HabitLogEntry: Identifiable, Hashable {
+    let id = UUID()
+    let date: Date
+    let status: Status
+    let count: Int
+    let goal: Int
+
+    enum Status {
+        case completed, inProgress, missed
+        
+        var title: String {
+            switch self {
+            case .completed: return "Completed"
+            case .inProgress: return "InProgress" // Changed from "clock.fill" for better visual
+            case .missed: return "Missed"
+            }
+        }
+        
+        var iconName: String {
+            switch self {
+            case .completed: return "checkmark.circle.fill"
+            case .inProgress: return "hourglass" // Changed from "clock.fill" for better visual
+            case .missed: return "xmark.circle.fill"
+            }
+        }
+        
+        var accentColor: Color {
+            switch self {
+            case .completed: return .green
+            case .inProgress: return .orange
+            case .missed: return .red
+            }
+        }
+    }
+
+    var progressText: String {
+        "\(count)/\(goal) completed"
+    }
+}
+
+
 class HabitDetailViewModel: ObservableObject {
     @Published var habit: Habit
     private var viewContext: NSManagedObjectContext
@@ -141,6 +182,83 @@ class HabitDetailViewModel: ObservableObject {
                 return calendar.isDate(date, equalTo: now, toGranularity: .month)
             }
         }
+    }
+    
+    func logEntries(for filter: HabitLogFilter) -> [HabitLogEntry] {
+        let calendar = Calendar.current
+        let today = Date().startOfDay
+        let logs = sortedLogs
+        let installDate = AppInfo.shared.installDate.startOfDay
+        let habitTarget = habit.targetCount
+
+        // Group logs by day → count completions per day
+        let logsGroupedByDay: [Date: Int] = logs.reduce(into: [:]) { result, log in
+            if let logDate = log.date?.startOfDay {
+                result[logDate, default: 0] += 1
+            }
+        }
+
+        var dateRange: [Date] = []
+
+        switch filter {
+        case .all:
+            let days = calendar.dateComponents([.day], from: installDate, to: today).day ?? 0
+            if days >= 0 {
+                dateRange = (0...days).compactMap {
+                    calendar.date(byAdding: .day, value: -$0, to: today)?.startOfDay
+                }
+            }
+
+        case .week:
+            if let startOfWeek = today.startOfWeek {
+                dateRange = (0..<7).compactMap {
+                    calendar.date(byAdding: .day, value: $0, to: startOfWeek)?.startOfDay
+                }.filter { $0 >= installDate && $0 <= today }
+            }
+
+        case .month:
+            if let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: today)) {
+                dateRange = Date.dates(from: startOfMonth, to: today)
+                    .filter { $0 >= installDate && $0 <= today }
+            }
+        }
+
+        // Build entries
+        let entries: [HabitLogEntry] = dateRange.map { date in
+            let count = logsGroupedByDay[date] ?? 0
+
+            let status: HabitLogEntry.Status
+            if count >= habitTarget {
+                status = .completed
+            } else if calendar.isDateInToday(date) {
+                status = .inProgress
+            } else {
+                status = .missed
+            }
+
+            return HabitLogEntry(
+                date: date,
+                status: status,
+                count: count,
+                goal: Int(habitTarget)
+            )
+        }
+
+        return entries.sorted { $0.date > $1.date }
+    }
+
+
+    func groupedLogsByWeek(for filter: HabitLogFilter) -> [(weekStart: Date, entries: [HabitLogEntry])] {
+        let logs = logEntries(for: filter)
+        let calendar = Calendar.current
+        
+        let grouped = Dictionary(grouping: logs) { entry -> Date in
+            calendar.dateInterval(of: .weekOfYear, for: entry.date)?.start ?? entry.date
+        }
+        
+        return grouped
+            .map { (weekStart: $0.key, entries: $0.value) }
+            .sorted { $0.weekStart > $1.weekStart } // latest week first
     }
 
 }
